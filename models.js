@@ -5,6 +5,9 @@ const boardSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  description: {
+    type: String,
+  },
   states: [
     {
       name: {
@@ -13,6 +16,7 @@ const boardSchema = new mongoose.Schema({
       },
       items: [
         {
+          order: Number,
           text: String,
         },
       ],
