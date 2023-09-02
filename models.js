@@ -18,6 +18,7 @@ const boardSchema = new mongoose.Schema({
         {
           order: Number,
           text: String,
+          desc: String,
         },
       ],
     },

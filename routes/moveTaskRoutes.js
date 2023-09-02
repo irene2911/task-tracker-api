@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.post('/:boardId/move-task', async (req, res) => {
   const { boardId } = req.params;
-  const { selectedTask, toContainer, newIndex } = req.body;
+  const { selectedTaskId, toContainer, newIndex } = req.body;
 
   try {
     const board = await Board.findById(boardId);
@@ -25,7 +25,7 @@ router.post('/:boardId/move-task', async (req, res) => {
 
     for (const state of board.states) {
       foundTask = state.items.find(
-        (item) => item._id.toString() === selectedTask
+        (item) => item._id.toString() === selectedTaskId
       );
       if (foundTask) {
         sourceState = state;
@@ -40,7 +40,7 @@ router.post('/:boardId/move-task', async (req, res) => {
     if (toContainer === sourceState._id.toString()) {
       const updatedItems = moveWithinContainer(
         sourceState,
-        selectedTask,
+        selectedTaskId,
         newIndex
       );
 
@@ -63,12 +63,13 @@ router.post('/:boardId/move-task', async (req, res) => {
       const newOrder = calculateNewOrder(destinationState.items, newIndex);
 
       sourceState.items = sourceState.items.filter(
-        (item) => item._id.toString() !== selectedTask
+        (item) => item._id.toString() !== selectedTaskId
       );
 
       destinationState.items.splice(newIndex, 0, {
-        _id: selectedTask,
+        _id: selectedTaskId,
         text: foundTask.text,
+        desc: foundTask.desc,
         order: newOrder,
       });
 
