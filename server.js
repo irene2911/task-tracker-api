@@ -6,6 +6,7 @@ import bodyParser from 'body-parser';
 import boardRoutes from './routes/boardRoutes.js';
 import itemRoutes from './routes/itemRoutes.js';
 import moveTaskRoutes from './routes/moveTaskRoutes.js';
+import stateRoutes from './routes/stateRoutes.js';
 
 dotenv.config();
 const app = express();
@@ -24,6 +25,7 @@ app.use(cors(corsOptions));
 app.use('/', moveTaskRoutes);
 app.use('/boards', boardRoutes);
 app.use('/', itemRoutes);
+app.use('/state', stateRoutes);
 
 app.listen(port, () => {
   mongoose.connect(process.env.MONGODB_URL);
