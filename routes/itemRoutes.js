@@ -93,60 +93,43 @@ router.put('/updateTask/:boardId', async (req, res) => {
   }
 });
 
-router.put('/stateRename/:boardId/:columnId', async (req, res) => {
-  const { boardId, columnId } = req.params;
-  const { newStateName } = req.body;
+router.delete('/deleteTask/:boardId/:taskId', async (req, res) => {
+  const { boardId, taskId } = req.params;
 
   try {
-    if (!newStateName) {
-      return res.status(400).json({ error: 'New state name is required' });
-    }
-
     const board = await Board.findById(boardId);
 
     if (!board) {
       return res.status(404).json({ error: 'Board not found' });
     }
 
-    const state = board.states.id(columnId);
+    let task = null;
+    let state = null;
 
-    if (!state) {
-      return res.status(404).json({ error: 'State not found' });
+    for (const boardState of board.states) {
+      task = boardState.items.find((item) => item._id.toString() === taskId);
+
+      if (task) {
+        state = boardState;
+        break;
+      }
     }
 
-    state.name = newStateName;
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found in any state' });
+    }
+
+    const taskIndex = state.items.findIndex(
+      (item) => item._id.toString() === taskId
+    );
+    state.items.splice(taskIndex, 1);
 
     await board.save();
 
-    return res.status(200).json({ message: 'State name updated successfully' });
+    res.json({ message: 'Task deleted successfully' });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'An error occurred' });
-  }
-});
-
-router.delete('/deleteState/:boardId/:stateId', async (req, res) => {
-  const { boardId, stateId } = req.params;
-
-  try {
-    const updatedBoard = await Board.findOneAndUpdate(
-      { _id: boardId },
-      {
-        $pull: {
-          states: { _id: stateId },
-        },
-      },
-      { new: true }
-    );
-
-    if (!updatedBoard) {
-      return res.status(404).json({ error: 'Board not found' });
-    }
-
-    return res.status(200).json({ message: 'State deleted successfully' });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'An error occurred' });
+    res.status(500).json({ error: 'Server error' });
   }
 });
 
